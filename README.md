@@ -154,13 +154,59 @@ pip install torch gymnasium[box2d] matplotlib numpy imageio
 ### Q-Learning vs SARSA
 Q-Learning’s maximization introduces optimistic estimates aiding faster exploitation; SARSA’s on-policy target incorporates exploratory actions leading to safer convergence in stochastic settings.
 
+<table>
+  <tr>
+    <td>
+      <img src="Q-Learning/Q_Learning.png" alt="Q-Learning" width="400"/>
+    </td>
+    <td>
+      <img src="SARSA/SARSA.png" alt="SARSA" width="400"/>
+    </td>
+  </tr>
+</table>
+
+
 ### DQN / Double DQN
 Double DQN reduces positive bias by decoupling action selection and evaluation—improving stability and preventing premature saturation of Q-values.
+
+<table>
+  <tr>
+    <td>
+      <img src="DQN/DQN.png" alt="Q-Learning" width="400"/>
+    </td>
+    <td>
+      <img src="DDQN/DDQN_1.png" alt="SARSA" width="400"/>
+    </td>
+  </tr>
+</table>
+
 
 ### Actor-Critic Family
 Vanilla Actor-Critic suffers from high variance; A2C’s synchronous n-step returns lower variance while retaining a tractable bias–variance tradeoff. PPO’s clipped surrogate prevents destructive policy updates (implicit trust region) increasing reproducibility.
 
+<table>
+  <tr>
+    <td>
+      <img src="Actor-Critic/Actor-Critic.png" alt="Q-Learning" width="400"/>
+    </td>
+    <td>
+      <img src="A2C/A2C.png" alt="SARSA" width="400"/>
+    </td>
+  </tr>
+</table>
+
 ### Deterministic Methods (DDPG / TD3)
 DDPG is sensitive to noise and overestimation; TD3 addresses these via critic redundancy, target smoothing (regularization of sharp Q surfaces), and delayed policy updates (reducing actor drift).
+
+<table>
+  <tr>
+    <td>
+      <img src="DDPG/DDPG.png" alt="Q-Learning" width="400"/>
+    </td>
+    <td>
+      <img src="TD3/TD3.png" alt="SARSA" width="400"/>
+    </td>
+  </tr>
+</table>
 
 ---
