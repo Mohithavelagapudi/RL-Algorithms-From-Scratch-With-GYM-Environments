@@ -19,32 +19,111 @@ Environments used (Gymnasium): FrozenLake-v1, Taxi-v3, CartPole-v1, Pendulum-v1,
 Below are the core update rules and objectives distinguishing the algorithms.
 
 ### 2.1 Tabular Methods
-- Q-Learning (off-policy, bootstrapped):  
-  Update: \(Q(s,a) \leftarrow Q(s,a) + \alpha [r + \gamma \max_{a'} Q(s',a') - Q(s,a)]\)
-- SARSA (on-policy):  
-  Update: \(Q(s,a) \leftarrow Q(s,a) + \alpha [r + \gamma Q(s',a') - Q(s,a)]\)
+- Q-Learning (off-policy, bootstrapped):
+  
+![Reinforcement Learning Diagram](https://miro.medium.com/v2/resize:fit:1400/0*ZC1PGJlwSfruMxTw.png)
+
+- SARSA (on-policy):
+
+![Reinforcement Learning Diagram](https://www.tutorialspoint.com/machine_learning/images/sarsa_reinforcement_learning_equation.jpg)
 
 ### 2.2 Deep Value-Based
-- DQN: Minimize TD error \(L = (r + \gamma \max_{a'} Q_{\text{target}}(s', a') - Q_{\text{online}}(s,a))^2\) with Experience Replay + Target Network.
-- Double DQN: Action selection via online network, evaluation via target:  
-  \(y = r + \gamma Q_{\text{target}}(s', \arg\max_a Q_{\text{online}}(s',a))\)
+- DQN:
+
+![Reinforcement Learning Diagram](https://images.ctfassets.net/xjan103pcp94/4I8ykpvSx7u7ttgjVRqx2O/6454b9aad60d7468a4984852918ade70/blog-training-deep-q-networks-1.png)
+
+- Double DQN:
+
+![Reinforcement Learning Diagram](https://miro.medium.com/v2/resize:fit:1400/1*LsKaemvo3IGpvi2Aufy0EQ.png)
 
 ### 2.3 Policy Gradient & Advantage Actor–Critic
-- Policy Objective: \(J(\theta) = \mathbb{E}[\sum_t \gamma^t r_t]\)
-- REINFORCE Gradient: \(\nabla_\theta J = \mathbb{E}[\sum_t \nabla_\theta \log \pi_\theta(a_t|s_t) G_t]\)
-- Actor–Critic Advantage: \(A_t = G_t - V(s_t)\); Actor Loss: \(-\log \pi_\theta(a_t|s_t) A_t\); Critic Loss: MSE \((V(s_t) - G_t)^2\)
-- A2C (synchronous multi-step): n-step return:  
-  \(R_t^{(n)} = \sum_{k=0}^{n-1} \gamma^k r_{t+k} + \gamma^n V(s_{t+n})\) (bootstrapped if not terminal).
+- Policy Objective:  
+
+$$
+J(\theta) = \mathbb{E}\Big[\sum_t \gamma^t r_t \Big]
+$$
+
+- REINFORCE Gradient:  
+
+$$
+\nabla_\theta J = \mathbb{E}\Big[\sum_t \nabla_\theta \log \pi_\theta(a_t|s_t) G_t \Big]
+$$
+
+- Actor–Critic Advantage:
+
+$$
+A_t = G_t - V(s_t)
+$$
+
+- Actor Loss & Critic Loss:  
+
+$$
+L_{\text{actor}} = - \log \pi_\theta(a_t|s_t) A_t
+$$
+$$
+L_{\text{critic}} = \big( V(s_t) - G_t \big)^2
+$$
+
+- A2C (synchronous multi-step return):  
+
+$$
+R_t^{(n)} = \sum_{k=0}^{n-1} \gamma^k r_{t+k} + \gamma^n V(s_{t+n})
+$$
+
+---
 
 ### 2.4 PPO (Clipped Surrogate)
-Ratio: \(r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}\)  
-Objective: \(L^{\text{CLIP}} = \mathbb{E}[\min(r_t A_t, \text{clip}(r_t, 1-\epsilon, 1+\epsilon) A_t)]\) with entropy bonus and value loss.
+- Probability Ratio:  
+
+$$
+r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}
+$$
+
+- Clipped Surrogate Objective:  
+
+$$
+L^{\text{CLIP}} = \mathbb{E} \Big[ \min \big( r_t A_t, \text{clip}(r_t, 1-\epsilon, 1+\epsilon) A_t \big) \Big]
+$$
+
+---
 
 ### 2.5 Deterministic Actor–Critic (DDPG / TD3)
-- Deterministic Policy: \(a = \mu_\theta(s)\)  
-- Critic Target: \(y = r + \gamma Q_{\phi'}(s', \mu_{\theta'}(s'))\)  
-- Actor Gradient: \(\nabla_\theta J \approx \mathbb{E}[ \nabla_a Q_\phi(s,a) |_{a=\mu_\theta(s)} \nabla_\theta \mu_\theta(s)]\)
-- TD3 Enhancements: (1) Twin Critics: take \(\min(Q_1, Q_2)\) to mitigate positive bias; (2) Target Policy Smoothing: add clipped noise to target actions; (3) Delayed Policy Updates: update actor less frequently than critic.
+- Deterministic Policy:  
+
+$$
+a = \mu_\theta(s)
+$$
+
+- Critic Target:  
+
+$$
+y = r + \gamma Q_{\phi'}(s', \mu_{\theta'}(s'))
+$$
+
+- Actor Gradient:  
+
+$$
+\nabla_\theta J \approx \mathbb{E} \Big[ \nabla_a Q_\phi(s,a) \big|_{a=\mu_\theta(s)} \nabla_\theta \mu_\theta(s) \Big]
+$$
+
+- **TD3 Enhancements:**  
+
+  1. **Twin Critics:** take minimum to mitigate overestimation bias  
+  <p align="center">
+  $$
+  Q_{\text{target}} = \min(Q_1, Q_2)
+  $$
+  </p>
+
+  2. **Target Policy Smoothing:** add clipped noise to target actions  
+  <p align="center">
+  $$
+  a'_{\text{target}} = \mu_{\theta'}(s') + \text{clip}(\epsilon, -c, c), \quad \epsilon \sim \mathcal{N}(0, \sigma^2)
+  $$
+  </p>
+
+  3. **Delayed Policy Updates:** update actor less frequently than critic
+
 
 ---
 ## 3. Why One Algorithm Over Another?
